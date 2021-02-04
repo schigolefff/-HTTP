@@ -5,13 +5,15 @@ import requests
 from PIL import Image
 
 
-def show_map(ll, spn, start_pos, l="map", add_params=None):
+def show_map(points, l="map", add_params=None):
     map_params = {
         "l": l
     }
-    new_pos = ','.join([str(pos) for pos in start_pos])
     if add_params:
-        map_params["pt"] = f"{ll},pm2wtl~{new_pos},pm2rdl"
+        map_params["pt"] = ""
+        for point in points.keys():
+            map_params["pt"] += f"{point},{points[point]}~"
+        map_params["pt"] = map_params["pt"][:-1].replace(' ', '')
     map_api_server = "http://static-maps.yandex.ru/1.x/"
     response = requests.get(map_api_server, params=map_params)
     if not response:
