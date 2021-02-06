@@ -1,7 +1,10 @@
+import argparse
+
 import requests
 
 from distance import lonlat_distance
 from show_map import show_map
+from get_ll_spn import get_ll_spn
 
 
 def get_organisation(ll):
@@ -23,18 +26,22 @@ def get_organisation(ll):
 
 
 if __name__ == '__main__':
-    address_ll = "37.588392,55.734036"
-    organization = get_organisation(address_ll)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("address", type=str, nargs="*")
+    args = parser.parse_args()
+    address = " ".join(args.address)
+    address_ll = get_ll_spn(address)
+    organization = get_organisation(address_ll[0])
     org_name = organization["properties"]["CompanyMetaData"]["name"]
     org_address = organization["properties"]["CompanyMetaData"]["address"]
     org_coords = organization["geometry"]["coordinates"]
     org_time = organization["properties"]["CompanyMetaData"]["Hours"]["text"]
-    lon_lat = address_ll.split(',')
+    lon_lat = address_ll[0].split(',')
     lon, lat = lon_lat
     org_distance = round(lonlat_distance((lon, lat), org_coords))
     delta = "0.005"
 
-    show_map(address_ll, spn=",".join([delta, delta]),
+    show_map(address_ll[0], spn=",".join([delta, delta]),
              add_params=True, start_pos=org_coords)
 
     snippet = f"Название: {org_name}\nАдрес: {org_address}\nВремя Работы: {org_time}\nРасстояние: {org_distance}"
